@@ -5,9 +5,10 @@ import RejectButton from './RejectButton';
 export default async function OwnershipRequestsPage({
   searchParams,
 }: {
-  searchParams: { filter?: string };
+  searchParams: Promise<{ filter?: string }>;
 }) {
-  const filter = searchParams.filter === 'all' ? 'all' : 'pending';
+  const { filter: filterParam } = await searchParams;
+  const filter = filterParam === 'all' ? 'all' : 'pending';
   const requests = await getOwnershipRequests(filter);
 
   function statusBadge(status: string) {

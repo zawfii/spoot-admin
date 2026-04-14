@@ -3,7 +3,19 @@
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 
+async function assertAdminRole(): Promise<string | null> {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return 'Unauthorized';
+  const { data: profile } = await supabase
+    .from('profiles').select('role').eq('id', user.id).single();
+  if (!['admin', 'editor'].includes(profile?.role ?? '')) return 'Forbidden';
+  return null;
+}
+
 export async function approveOwnershipRequest(requestId: string): Promise<{ error?: string }> {
+  const authError = await assertAdminRole();
+  if (authError) return { error: authError };
   const supabase = createClient();
   const { error } = await supabase.rpc('approve_ownership_request', { request_id: requestId });
   if (error) return { error: error.message };
@@ -12,11 +24,14 @@ export async function approveOwnershipRequest(requestId: string): Promise<{ erro
 }
 
 export async function rejectOwnershipRequest(requestId: string, adminNote: string): Promise<{ error?: string }> {
+  const authError = await assertAdminRole();
+  if (authError) return { error: authError };
   const supabase = createClient();
   const { error } = await supabase
     .from('ownership_requests')
     .update({ status: 'rejected', admin_note: adminNote || null })
-    .eq('id', requestId);
+    .eq('id', requestId)
+    .eq('status', 'pending');
   if (error) return { error: error.message };
   revalidatePath('/dashboard/ownership-requests');
   return {};

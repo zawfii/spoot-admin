@@ -115,11 +115,3 @@ export async function getOwnershipRequests(filter: 'all' | 'pending' = 'pending'
   }));
 }
 
-export async function getPendingOwnershipCount(): Promise<number> {
-  const supabase = createClient();
-  const { count } = await supabase
-    .from('ownership_requests')
-    .select('id', { count: 'exact', head: true })
-    .eq('status', 'pending');
-  return count ?? 0;
-}
