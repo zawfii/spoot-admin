@@ -119,7 +119,7 @@ export default function GuideEditPage() {
   }
 
   async function handleGenerateAI() {
-    if (!canGenerate) return;
+    if (!guide || !canGenerate) return;
     setPrevBlocks(blocks);
     setIsGenerating(true);
     try {
