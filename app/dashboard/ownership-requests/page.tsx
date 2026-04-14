@@ -40,7 +40,8 @@ export default async function OwnershipRequestsPage({
           <thead className="bg-gray-50 border-b">
             <tr>
               <th className="text-left px-4 py-3 font-medium">Lokal</th>
-              <th className="text-left px-4 py-3 font-medium">Użytkownik</th>
+              <th className="text-left px-4 py-3 font-medium">Imię i nazwisko</th>
+              <th className="text-left px-4 py-3 font-medium">Telefon</th>
               <th className="text-left px-4 py-3 font-medium">NIP</th>
               <th className="text-left px-4 py-3 font-medium">Data</th>
               <th className="text-left px-4 py-3 font-medium">Status</th>
@@ -51,7 +52,8 @@ export default async function OwnershipRequestsPage({
             {requests.map(req => (
               <tr key={req.id} className="border-b last:border-0 hover:bg-gray-50">
                 <td className="px-4 py-3 font-medium">{req.place_name}</td>
-                <td className="px-4 py-3 text-gray-500 max-w-[180px] truncate">{req.user_display_name}</td>
+                <td className="px-4 py-3 text-gray-700">{req.full_name ?? <span className="text-gray-300">—</span>}</td>
+                <td className="px-4 py-3 text-gray-500 whitespace-nowrap">{req.phone ?? <span className="text-gray-300">—</span>}</td>
                 <td className="px-4 py-3 font-mono">{req.nip}</td>
                 <td className="px-4 py-3 text-gray-500 whitespace-nowrap">{formatDate(req.created_at)}</td>
                 <td className="px-4 py-3">{statusBadge(req.status)}</td>
@@ -70,7 +72,7 @@ export default async function OwnershipRequestsPage({
             ))}
             {requests.length === 0 && (
               <tr>
-                <td colSpan={6} className="px-4 py-8 text-center text-gray-400">
+                <td colSpan={7} className="px-4 py-8 text-center text-gray-400">
                   {filter === 'pending' ? 'Brak oczekujących prośb' : 'Brak prośb'}
                 </td>
               </tr>

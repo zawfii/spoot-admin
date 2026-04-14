@@ -76,6 +76,8 @@ export type OwnershipRequestRow = {
   id: string;
   user_id: string;
   place_id: string;
+  full_name: string | null;
+  phone: string | null;
   nip: string;
   message: string | null;
   status: 'pending' | 'approved' | 'rejected';
@@ -90,7 +92,7 @@ export async function getOwnershipRequests(filter: 'all' | 'pending' = 'pending'
   let query = supabase
     .from('ownership_requests')
     .select(`
-      id, user_id, place_id, nip, message, status, admin_note, created_at,
+      id, user_id, place_id, full_name, phone, nip, message, status, admin_note, created_at,
       places(name),
       profiles(display_name)
     `)
@@ -105,6 +107,8 @@ export async function getOwnershipRequests(filter: 'all' | 'pending' = 'pending'
     id: row.id,
     user_id: row.user_id,
     place_id: row.place_id,
+    full_name: row.full_name ?? null,
+    phone: row.phone ?? null,
     nip: row.nip,
     message: row.message,
     status: row.status,
