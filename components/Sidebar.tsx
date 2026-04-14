@@ -1,5 +1,6 @@
 'use client';
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 
@@ -9,11 +10,23 @@ const links = [
   { href: '/dashboard/spoot-lists', label: 'Listy Spoot', icon: '📋' },
   { href: '/dashboard/guides', label: 'Przewodniki', icon: '📖' },
   { href: '/dashboard/featured', label: 'Wyróżnione', icon: '⭐' },
+  { href: '/dashboard/ownership-requests', label: 'Właściciele', icon: '🏪' },
 ];
 
 export default function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
+
+  const [pendingCount, setPendingCount] = useState(0);
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase
+      .from('ownership_requests')
+      .select('id', { count: 'exact', head: true })
+      .eq('status', 'pending')
+      .then(({ count }) => setPendingCount(count ?? 0));
+  }, []);
 
   async function handleLogout() {
     const supabase = createClient();
@@ -41,6 +54,11 @@ export default function Sidebar() {
             >
               <span>{link.icon}</span>
               {link.label}
+              {link.href === '/dashboard/ownership-requests' && pendingCount > 0 && (
+                <span className="ml-auto bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
+                  {pendingCount > 9 ? '9+' : pendingCount}
+                </span>
+              )}
             </Link>
           );
         })}

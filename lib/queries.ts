@@ -69,3 +69,57 @@ export async function getFeaturedPlaces() {
     .order('position');
   return data ?? [];
 }
+
+// --- Ownership Requests ---
+
+export type OwnershipRequestRow = {
+  id: string;
+  user_id: string;
+  place_id: string;
+  nip: string;
+  message: string | null;
+  status: 'pending' | 'approved' | 'rejected';
+  admin_note: string | null;
+  created_at: string;
+  place_name: string;
+  user_email: string;
+};
+
+export async function getOwnershipRequests(filter: 'all' | 'pending' = 'pending'): Promise<OwnershipRequestRow[]> {
+  const supabase = createClient();
+  let query = supabase
+    .from('ownership_requests')
+    .select(`
+      id, user_id, place_id, nip, message, status, admin_note, created_at,
+      places(name),
+      profiles(email)
+    `)
+    .order('created_at', { ascending: false });
+
+  if (filter === 'pending') query = query.eq('status', 'pending');
+
+  const { data, error } = await query;
+  if (error) { console.error('getOwnershipRequests:', error.message); return []; }
+
+  return (data ?? []).map((row: any) => ({
+    id: row.id,
+    user_id: row.user_id,
+    place_id: row.place_id,
+    nip: row.nip,
+    message: row.message,
+    status: row.status,
+    admin_note: row.admin_note,
+    created_at: row.created_at,
+    place_name: row.places?.name ?? '—',
+    user_email: row.profiles?.email ?? row.user_id,
+  }));
+}
+
+export async function getPendingOwnershipCount(): Promise<number> {
+  const supabase = createClient();
+  const { count } = await supabase
+    .from('ownership_requests')
+    .select('id', { count: 'exact', head: true })
+    .eq('status', 'pending');
+  return count ?? 0;
+}
