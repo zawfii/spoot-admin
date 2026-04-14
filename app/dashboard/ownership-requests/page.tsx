@@ -51,7 +51,7 @@ export default async function OwnershipRequestsPage({
             {requests.map(req => (
               <tr key={req.id} className="border-b last:border-0 hover:bg-gray-50">
                 <td className="px-4 py-3 font-medium">{req.place_name}</td>
-                <td className="px-4 py-3 text-gray-500 max-w-[180px] truncate">{req.user_email}</td>
+                <td className="px-4 py-3 text-gray-500 max-w-[180px] truncate">{req.user_display_name}</td>
                 <td className="px-4 py-3 font-mono">{req.nip}</td>
                 <td className="px-4 py-3 text-gray-500 whitespace-nowrap">{formatDate(req.created_at)}</td>
                 <td className="px-4 py-3">{statusBadge(req.status)}</td>

@@ -82,7 +82,7 @@ export type OwnershipRequestRow = {
   admin_note: string | null;
   created_at: string;
   place_name: string;
-  user_email: string;
+  user_display_name: string;
 };
 
 export async function getOwnershipRequests(filter: 'all' | 'pending' = 'pending'): Promise<OwnershipRequestRow[]> {
@@ -92,7 +92,7 @@ export async function getOwnershipRequests(filter: 'all' | 'pending' = 'pending'
     .select(`
       id, user_id, place_id, nip, message, status, admin_note, created_at,
       places(name),
-      profiles(email)
+      profiles(display_name)
     `)
     .order('created_at', { ascending: false });
 
@@ -111,7 +111,7 @@ export async function getOwnershipRequests(filter: 'all' | 'pending' = 'pending'
     admin_note: row.admin_note,
     created_at: row.created_at,
     place_name: row.places?.name ?? '—',
-    user_email: row.profiles?.email ?? row.user_id,
+    user_display_name: row.profiles?.display_name ?? row.user_id,
   }));
 }
 
