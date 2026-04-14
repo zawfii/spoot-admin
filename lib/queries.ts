@@ -93,8 +93,7 @@ export async function getOwnershipRequests(filter: 'all' | 'pending' = 'pending'
     .from('ownership_requests')
     .select(`
       id, user_id, place_id, full_name, phone, nip, message, status, admin_note, created_at,
-      places(name),
-      profiles(display_name)
+      places(name)
     `)
     .order('created_at', { ascending: false });
 
@@ -103,7 +102,14 @@ export async function getOwnershipRequests(filter: 'all' | 'pending' = 'pending'
   const { data, error } = await query;
   if (error) { console.error('getOwnershipRequests:', error.message); return []; }
 
-  return (data ?? []).map((row: any) => ({
+  const rows = data ?? [];
+  const userIds = [...new Set(rows.map((r: any) => r.user_id))];
+  const { data: profiles } = userIds.length
+    ? await supabase.from('profiles').select('id, display_name').in('id', userIds)
+    : { data: [] };
+  const profileMap = Object.fromEntries((profiles ?? []).map((p: any) => [p.id, p]));
+
+  return rows.map((row: any) => ({
     id: row.id,
     user_id: row.user_id,
     place_id: row.place_id,
@@ -115,7 +121,57 @@ export async function getOwnershipRequests(filter: 'all' | 'pending' = 'pending'
     admin_note: row.admin_note,
     created_at: row.created_at,
     place_name: row.places?.name ?? '—',
-    user_display_name: row.profiles?.display_name ?? row.user_id,
+    user_display_name: profileMap[row.user_id]?.display_name ?? row.user_id,
+  }));
+}
+
+// --- Promotions ---
+
+export type PromotionRow = {
+  id: string;
+  place_id: string;
+  owner_id: string;
+  package: '7d' | '14d' | '30d';
+  status: 'pending' | 'approved' | 'rejected' | 'expired';
+  active_from: string | null;
+  active_until: string | null;
+  admin_note: string | null;
+  created_at: string;
+  place_name: string;
+  owner_display_name: string;
+};
+
+export async function getPromotions(filter: 'all' | 'pending' = 'pending'): Promise<PromotionRow[]> {
+  const supabase = createClient();
+  let query = supabase
+    .from('promotions')
+    .select('id, place_id, owner_id, package, status, active_from, active_until, admin_note, created_at, places(name)')
+    .order('created_at', { ascending: false });
+
+  if (filter === 'pending') query = query.eq('status', 'pending');
+
+  const { data, error } = await query;
+  if (error) { console.error('getPromotions:', error.message); return []; }
+
+  const rows = data ?? [];
+  const ownerIds = [...new Set(rows.map((r: any) => r.owner_id))];
+  const { data: profiles } = ownerIds.length
+    ? await supabase.from('profiles').select('id, display_name').in('id', ownerIds)
+    : { data: [] };
+  const profileMap = Object.fromEntries((profiles ?? []).map((p: any) => [p.id, p]));
+
+  return rows.map((row: any) => ({
+    id: row.id,
+    place_id: row.place_id,
+    owner_id: row.owner_id,
+    package: row.package,
+    status: row.status,
+    active_from: row.active_from ?? null,
+    active_until: row.active_until ?? null,
+    admin_note: row.admin_note ?? null,
+    created_at: row.created_at,
+    place_name: row.places?.name ?? '—',
+    owner_display_name: profileMap[row.owner_id]?.display_name ?? row.owner_id,
   }));
 }
 

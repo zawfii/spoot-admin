@@ -11,6 +11,7 @@ const links = [
   { href: '/dashboard/guides', label: 'Przewodniki', icon: '📖' },
   { href: '/dashboard/featured', label: 'Wyróżnione', icon: '⭐' },
   { href: '/dashboard/ownership-requests', label: 'Właściciele', icon: '🏪' },
+  { href: '/dashboard/promotions', label: 'Wyróżnienia', icon: '🚀' },
 ];
 
 export default function Sidebar() {
@@ -18,6 +19,7 @@ export default function Sidebar() {
   const router = useRouter();
 
   const [pendingCount, setPendingCount] = useState(0);
+  const [pendingPromotionsCount, setPendingPromotionsCount] = useState(0);
 
   useEffect(() => {
     const supabase = createClient();
@@ -26,6 +28,11 @@ export default function Sidebar() {
       .select('id', { count: 'exact', head: true })
       .eq('status', 'pending')
       .then(({ count }) => setPendingCount(count ?? 0));
+    supabase
+      .from('promotions')
+      .select('id', { count: 'exact', head: true })
+      .eq('status', 'pending')
+      .then(({ count }) => setPendingPromotionsCount(count ?? 0));
   }, []);
 
   async function handleLogout() {
@@ -57,6 +64,11 @@ export default function Sidebar() {
               {link.href === '/dashboard/ownership-requests' && pendingCount > 0 && (
                 <span className="ml-auto bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
                   {pendingCount > 9 ? '9+' : pendingCount}
+                </span>
+              )}
+              {link.href === '/dashboard/promotions' && pendingPromotionsCount > 0 && (
+                <span className="ml-auto bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
+                  {pendingPromotionsCount > 9 ? '9+' : pendingPromotionsCount}
                 </span>
               )}
             </Link>
