@@ -41,20 +41,33 @@ export interface SpootGuide {
   title: string;
   slug: string;
   cover_url: string | null;
-  intro: string | null;
   city: string | null;
   theme: string | null;
   is_published: boolean;
+  is_sponsored: boolean;
+  sponsor_name: string | null;
+  sponsor_logo: string | null;
+  author_id: string | null;
   created_at: string;
 }
 
-export interface SpootGuidePlace {
+export type BlockType = 'text' | 'place' | 'heading' | 'quote' | 'image' | 'separator';
+
+export type BlockInstruction = 'popraw' | 'rozwin' | 'skróć' | 'formalny' | 'luźny' | 'magazynowy';
+
+export interface GuideBlock {
   id: string;
   guide_id: string;
-  place_id: string;
   position: number;
-  editorial_note: string | null;
-  place?: Pick<AdminPlace, 'id' | 'name' | 'city' | 'category'>;
+  type: BlockType;
+  content: Record<string, string>;
+  // Populated client-side for 'place' blocks:
+  place?: Pick<AdminPlace, 'id' | 'name' | 'category' | 'city'> | null;
+}
+
+export interface GuideStats {
+  totalViews: number;
+  uniqueReaders: number;
 }
 
 export interface FeaturedPlace {

@@ -175,3 +175,51 @@ export async function getPromotions(filter: 'all' | 'pending' = 'pending'): Prom
   }));
 }
 
+export async function getGuideWithBlocks(id: string): Promise<{
+  guide: import('./types').SpootGuide | null;
+  blocks: import('./types').GuideBlock[];
+}> {
+  const supabase = createClient();
+  const [guideRes, blocksRes] = await Promise.all([
+    supabase.from('spoot_guides').select('*').eq('id', id).single(),
+    supabase
+      .from('guide_blocks')
+      .select('*')
+      .eq('guide_id', id)
+      .order('position'),
+  ]);
+
+  const blocks: import('./types').GuideBlock[] = blocksRes.data ?? [];
+
+  // Enrich place blocks with place data
+  const placeIds = blocks
+    .filter(b => b.type === 'place' && b.content?.place_id)
+    .map(b => b.content.place_id);
+
+  if (placeIds.length > 0) {
+    const { data: places } = await supabase
+      .from('places')
+      .select('id, name, category, city')
+      .in('id', placeIds);
+    const placeMap = Object.fromEntries((places ?? []).map((p: any) => [p.id, p]));
+    blocks.forEach(b => {
+      if (b.type === 'place' && b.content?.place_id) {
+        b.place = placeMap[b.content.place_id] ?? null;
+      }
+    });
+  }
+
+  return { guide: guideRes.data, blocks };
+}
+
+export async function getGuideStats(guideId: string): Promise<import('./types').GuideStats> {
+  const supabase = createClient();
+  const { data } = await supabase
+    .from('guide_views')
+    .select('user_id')
+    .eq('guide_id', guideId);
+  const rows = data ?? [];
+  const uniqueReaders = new Set(rows.map((r: any) => r.user_id).filter(Boolean)).size;
+  return { totalViews: rows.length, uniqueReaders };
+}
+
