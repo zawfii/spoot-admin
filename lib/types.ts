@@ -16,6 +16,8 @@ export interface AdminPlace {
   lng: number | null;
   venue_type: string | null;
   google_place_id: string | null;
+  status: string | null;
+  created_at: string | null;
 }
 
 export interface SpootList {

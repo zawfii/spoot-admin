@@ -12,6 +12,8 @@ const links = [
   { href: '/dashboard/featured', label: 'Wyróżnione', icon: '⭐' },
   { href: '/dashboard/ownership-requests', label: 'Właściciele', icon: '🏪' },
   { href: '/dashboard/promotions', label: 'Wyróżnienia', icon: '🚀' },
+  { href: '/dashboard/deals', label: 'Oferty dnia', icon: '💸' },
+  { href: '/dashboard/dish-categories', label: 'Nowe kategorie', icon: '🏷️' },
 ];
 
 export default function Sidebar() {
@@ -20,6 +22,8 @@ export default function Sidebar() {
 
   const [pendingCount, setPendingCount] = useState(0);
   const [pendingPromotionsCount, setPendingPromotionsCount] = useState(0);
+  const [pendingDishCategoriesCount, setPendingDishCategoriesCount] = useState(0);
+  const [pendingDealsCount, setPendingDealsCount] = useState(0);
 
   useEffect(() => {
     const supabase = createClient();
@@ -33,6 +37,16 @@ export default function Sidebar() {
       .select('id', { count: 'exact', head: true })
       .eq('status', 'pending')
       .then(({ count }) => setPendingPromotionsCount(count ?? 0));
+    supabase
+      .from('dish_category_suggestions')
+      .select('id', { count: 'exact', head: true })
+      .eq('status', 'pending')
+      .then(({ count }) => setPendingDishCategoriesCount(count ?? 0));
+    supabase
+      .from('deals')
+      .select('id', { count: 'exact', head: true })
+      .eq('status', 'pending')
+      .then(({ count }) => setPendingDealsCount(count ?? 0));
   }, []);
 
   async function handleLogout() {
@@ -42,11 +56,12 @@ export default function Sidebar() {
   }
 
   return (
-    <aside className="w-56 shrink-0 bg-white border-r min-h-screen flex flex-col">
-      <div className="p-5 border-b">
-        <span className="font-bold text-lg">Spoot Admin</span>
+    <aside className="w-60 shrink-0 bg-primary text-surface min-h-screen flex flex-col">
+      <div className="px-5 py-6 flex items-center gap-2">
+        <span className="w-2 h-2 rounded-full bg-secondary" />
+        <span className="font-heading font-bold text-lg text-onPrimary">Spoot Admin</span>
       </div>
-      <nav className="flex-1 p-3 space-y-1">
+      <nav className="flex-1 px-3 space-y-0.5">
         {links.map(link => {
           const active = link.href === '/dashboard'
             ? pathname === '/dashboard'
@@ -55,30 +70,40 @@ export default function Sidebar() {
             <Link
               key={link.href}
               href={link.href}
-              className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
-                active ? 'bg-gray-100 font-medium' : 'hover:bg-gray-50 text-gray-600'
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-colors ${
+                active ? 'bg-primaryLight text-onPrimary' : 'text-surface/70 hover:bg-primaryLight/60 hover:text-onPrimary'
               }`}
             >
               <span>{link.icon}</span>
               {link.label}
               {link.href === '/dashboard/ownership-requests' && pendingCount > 0 && (
-                <span className="ml-auto bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
+                <span className="ml-auto bg-secondary text-onSecondary text-xs rounded-full min-w-5 h-5 px-1 flex items-center justify-center font-bold">
                   {pendingCount > 9 ? '9+' : pendingCount}
                 </span>
               )}
               {link.href === '/dashboard/promotions' && pendingPromotionsCount > 0 && (
-                <span className="ml-auto bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
+                <span className="ml-auto bg-secondary text-onSecondary text-xs rounded-full min-w-5 h-5 px-1 flex items-center justify-center font-bold">
                   {pendingPromotionsCount > 9 ? '9+' : pendingPromotionsCount}
+                </span>
+              )}
+              {link.href === '/dashboard/dish-categories' && pendingDishCategoriesCount > 0 && (
+                <span className="ml-auto bg-secondary text-onSecondary text-xs rounded-full min-w-5 h-5 px-1 flex items-center justify-center font-bold">
+                  {pendingDishCategoriesCount > 9 ? '9+' : pendingDishCategoriesCount}
+                </span>
+              )}
+              {link.href === '/dashboard/deals' && pendingDealsCount > 0 && (
+                <span className="ml-auto bg-secondary text-onSecondary text-xs rounded-full min-w-5 h-5 px-1 flex items-center justify-center font-bold">
+                  {pendingDealsCount > 9 ? '9+' : pendingDealsCount}
                 </span>
               )}
             </Link>
           );
         })}
       </nav>
-      <div className="p-3 border-t">
+      <div className="p-3 border-t border-onPrimary/10">
         <button
           onClick={handleLogout}
-          className="w-full text-left px-3 py-2 text-sm text-gray-500 hover:text-gray-900 rounded-lg hover:bg-gray-50"
+          className="w-full text-left px-3 py-2 text-sm text-surface/70 hover:text-onPrimary rounded-md hover:bg-primaryLight/60 transition-colors"
         >
           Wyloguj
         </button>

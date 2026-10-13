@@ -16,15 +16,58 @@ export async function getDashboardStats() {
   };
 }
 
-export async function getPlaces(search = '', city = '') {
+export async function getDashboardExtras() {
+  const supabase = createClient();
+  const in3Days = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString();
+  const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+  const now = new Date().toISOString();
+
+  const [
+    placesPending,
+    promotionsPending,
+    ownershipPending,
+    dishCategoriesPending,
+    placesMissingCoords,
+    promotionsExpiringSoon,
+    listsUnpublished,
+    guidesUnpublished,
+    placesNew,
+  ] = await Promise.all([
+    supabase.from('places').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
+    supabase.from('promotions').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
+    supabase.from('ownership_requests').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
+    supabase.from('dish_category_suggestions').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
+    supabase.from('places').select('id', { count: 'exact', head: true }).or('lat.is.null,lng.is.null'),
+    supabase.from('promotions').select('id', { count: 'exact', head: true }).eq('status', 'approved').lte('active_until', in3Days).gt('active_until', now),
+    supabase.from('spoot_lists').select('id', { count: 'exact', head: true }).eq('is_published', false),
+    supabase.from('spoot_guides').select('id', { count: 'exact', head: true }).eq('is_published', false),
+    supabase.from('places').select('id', { count: 'exact', head: true }).gte('created_at', sevenDaysAgo),
+  ]);
+
+  return {
+    needsAttention: {
+      placesPending: placesPending.count ?? 0,
+      promotionsPending: promotionsPending.count ?? 0,
+      ownershipPending: ownershipPending.count ?? 0,
+      dishCategoriesPending: dishCategoriesPending.count ?? 0,
+    },
+    placesMissingCoords: placesMissingCoords.count ?? 0,
+    promotionsExpiringSoon: promotionsExpiringSoon.count ?? 0,
+    draftsUnpublished: (listsUnpublished.count ?? 0) + (guidesUnpublished.count ?? 0),
+    placesNewLast7Days: placesNew.count ?? 0,
+  };
+}
+
+export async function getPlaces(search = '', city = '', status = '') {
   const supabase = createClient();
   let query = supabase
     .from('places')
-    .select('id, name, category, city, lat, lng')
+    .select('id, name, category, city, lat, lng, status')
     .order('name');
 
   if (search) query = query.ilike('name', `%${search}%`);
   if (city) query = query.eq('city', city);
+  if (status) query = query.eq('status', status);
 
   const { data } = await query.limit(100);
   return data ?? [];
@@ -33,7 +76,7 @@ export async function getPlaces(search = '', city = '') {
 export async function getDistinctCities() {
   const supabase = createClient();
   const { data } = await supabase.from('places').select('city').not('city', 'is', null);
-  const cities = [...new Set((data ?? []).map(r => r.city).filter(Boolean))].sort();
+  const cities = Array.from(new Set((data ?? []).map(r => r.city).filter(Boolean))).sort();
   return cities as string[];
 }
 
@@ -103,7 +146,7 @@ export async function getOwnershipRequests(filter: 'all' | 'pending' = 'pending'
   if (error) { console.error('getOwnershipRequests:', error.message); return []; }
 
   const rows = data ?? [];
-  const userIds = [...new Set(rows.map((r: any) => r.user_id))];
+  const userIds = Array.from(new Set(rows.map((r: any) => r.user_id)));
   const { data: profiles } = userIds.length
     ? await supabase.from('profiles').select('id, display_name').in('id', userIds)
     : { data: [] };
@@ -154,7 +197,7 @@ export async function getPromotions(filter: 'all' | 'pending' = 'pending'): Prom
   if (error) { console.error('getPromotions:', error.message); return []; }
 
   const rows = data ?? [];
-  const ownerIds = [...new Set(rows.map((r: any) => r.owner_id))];
+  const ownerIds = Array.from(new Set(rows.map((r: any) => r.owner_id)));
   const { data: profiles } = ownerIds.length
     ? await supabase.from('profiles').select('id, display_name').in('id', ownerIds)
     : { data: [] };
@@ -172,6 +215,99 @@ export async function getPromotions(filter: 'all' | 'pending' = 'pending'): Prom
     created_at: row.created_at,
     place_name: row.places?.name ?? '—',
     owner_display_name: profileMap[row.owner_id]?.display_name ?? row.owner_id,
+  }));
+}
+
+// --- Deals ("Oferty dnia") ---
+// Nie mylić z `promotions` (płatne wyróżnienie) — deals to cykliczne rabaty
+// na dania po dniach tygodnia, zgłaszane przez właścicieli, admina lub userów.
+
+export type DealRow = {
+  id: string;
+  place_id: string;
+  owner_id: string | null;
+  dish_name: string;
+  price: number;
+  original_price: number | null;
+  days_of_week: string[];
+  valid_until: string | null;
+  status: 'pending' | 'approved' | 'rejected';
+  source: 'owner' | 'admin' | 'user' | 'scraper';
+  admin_note: string | null;
+  created_at: string;
+  place_name: string;
+};
+
+export async function getDeals(filter: 'all' | 'pending' = 'pending'): Promise<DealRow[]> {
+  const supabase = createClient();
+  let query = supabase
+    .from('deals')
+    .select('id, place_id, owner_id, dish_name, price, original_price, days_of_week, valid_until, status, source, admin_note, created_at, places(name)')
+    .order('created_at', { ascending: false });
+
+  if (filter === 'pending') query = query.eq('status', 'pending');
+
+  const { data, error } = await query;
+  if (error) { console.error('getDeals:', error.message); return []; }
+
+  return (data ?? []).map((row: any) => ({
+    id: row.id,
+    place_id: row.place_id,
+    owner_id: row.owner_id,
+    dish_name: row.dish_name,
+    price: row.price,
+    original_price: row.original_price ?? null,
+    days_of_week: row.days_of_week ?? [],
+    valid_until: row.valid_until ?? null,
+    status: row.status,
+    source: row.source,
+    admin_note: row.admin_note ?? null,
+    created_at: row.created_at,
+    place_name: row.places?.name ?? '—',
+  }));
+}
+
+// --- Dish Category Suggestions ---
+
+export type DishCategorySuggestionRow = {
+  id: string;
+  dish_name: string;
+  suggested_name: string;
+  occurrence_count: number;
+  ai_verdict: { reasoning: string; confidence: 'high' | 'medium' | 'low' } | null;
+  status: 'pending' | 'approved' | 'rejected';
+  admin_note: string | null;
+  pr_url: string | null;
+  resolved_category_id: string | null;
+  created_at: string;
+  place_name: string;
+};
+
+export async function getDishCategorySuggestions(filter: 'all' | 'pending' = 'pending'): Promise<DishCategorySuggestionRow[]> {
+  const supabase = createClient();
+  let query = supabase
+    .from('dish_category_suggestions')
+    .select('id, dish_name, suggested_name, occurrence_count, ai_verdict, status, admin_note, pr_url, resolved_category_id, created_at, places(name)')
+    .order('occurrence_count', { ascending: false })
+    .order('created_at', { ascending: false });
+
+  if (filter === 'pending') query = query.eq('status', 'pending');
+
+  const { data, error } = await query;
+  if (error) { console.error('getDishCategorySuggestions:', error.message); return []; }
+
+  return (data ?? []).map((row: any) => ({
+    id: row.id,
+    dish_name: row.dish_name,
+    suggested_name: row.suggested_name,
+    occurrence_count: row.occurrence_count,
+    ai_verdict: row.ai_verdict ?? null,
+    status: row.status,
+    admin_note: row.admin_note ?? null,
+    pr_url: row.pr_url ?? null,
+    resolved_category_id: row.resolved_category_id ?? null,
+    created_at: row.created_at,
+    place_name: row.places?.name ?? '—',
   }));
 }
 
