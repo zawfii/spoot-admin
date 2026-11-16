@@ -54,8 +54,8 @@ export default async function PlacesPage({
         actions={<Link href="/dashboard/places/new"><Button>Nowe miejsce</Button></Link>}
       />
 
-      <div className="flex flex-col gap-3 mb-6 lg:flex-row lg:items-center lg:justify-between">
-        <form role="search" className="flex flex-wrap gap-3 lg:flex-1 lg:max-w-[640px]">
+      <div className="flex flex-col gap-3 mb-6 xl:flex-row xl:items-center xl:justify-between">
+        <form role="search" className="flex flex-wrap gap-3 xl:flex-1 xl:max-w-[640px]">
           <label htmlFor="search" className="sr-only">Szukaj po nazwie</label>
           <div className="relative flex-[1_1_100%] sm:flex-[1_1_240px] text-onSurfaceVariant">
             <Icon name="search" size={18} className="absolute left-3.5 top-[13px]" />
