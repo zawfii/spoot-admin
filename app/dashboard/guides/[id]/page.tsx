@@ -197,7 +197,7 @@ export default function GuideEditPage() {
         </div>
       )}
 
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px] items-start">
+      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_340px] items-start">
         <section aria-labelledby="content-h" className="bg-cardMuted rounded-xl p-4 lg:p-5 flex flex-col gap-4">
           <div className="flex items-baseline justify-between gap-3">
             <h2 id="content-h" className="font-heading font-bold text-lg">Treść</h2>
@@ -217,7 +217,7 @@ export default function GuideEditPage() {
           />
         </section>
 
-        <aside className="flex flex-col gap-4 lg:sticky lg:top-6">
+        <aside className="flex flex-col gap-4 xl:sticky xl:top-6">
           <section aria-labelledby="settings-h" className="bg-cardMuted rounded-xl p-4 lg:p-5 flex flex-col gap-3.5">
             <h2 id="settings-h" className="font-heading font-bold text-lg">Ustawienia</h2>
             <label className="flex flex-col gap-1.5">
