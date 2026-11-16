@@ -104,7 +104,7 @@ export async function getGuides() {
   const supabase = createClient();
   const { data } = await supabase
     .from('spoot_guides')
-    .select('*, spoot_guide_places(count)')
+    .select('*, guide_blocks(type)')
     .order('created_at', { ascending: false });
   return data ?? [];
 }

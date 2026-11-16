@@ -25,6 +25,7 @@ export interface SpootList {
   title: string;
   emoji: string | null;
   city: string | null;
+  cover_url: string | null;
   is_published: boolean;
   created_at: string;
 }
@@ -35,7 +36,7 @@ export interface SpootListPlace {
   place_id: string;
   position: number;
   note: string | null;
-  place?: Pick<AdminPlace, 'id' | 'name' | 'city' | 'category'>;
+  place?: Pick<AdminPlace, 'id' | 'name' | 'city' | 'category' | 'address'>;
 }
 
 export interface SpootGuide {
@@ -64,7 +65,7 @@ export interface GuideBlock {
   type: BlockType;
   content: Record<string, string>;
   // Populated client-side for 'place' blocks:
-  place?: Pick<AdminPlace, 'id' | 'name' | 'category' | 'city'> | null;
+  place?: Pick<AdminPlace, 'id' | 'name' | 'category' | 'city' | 'address'> | null;
 }
 
 export interface GuideStats {

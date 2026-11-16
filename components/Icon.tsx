@@ -16,6 +16,18 @@ const PATHS = {
   close: <path d="M6 6l12 12M18 6L6 18" />,
   alert: <><path d="M12 4l9 16H3z" /><path d="M12 10v4M12 17v.5" /></>,
   check: <path d="M5 12.5l4.5 4.5L19 7.5" />,
+  grip: <><circle cx="9" cy="6" r="1" /><circle cx="15" cy="6" r="1" /><circle cx="9" cy="12" r="1" /><circle cx="15" cy="12" r="1" /><circle cx="9" cy="18" r="1" /><circle cx="15" cy="18" r="1" /></>,
+  up: <path d="M12 19V5M6 11l6-6 6 6" />,
+  down: <path d="M12 5v14M6 13l6 6 6-6" />,
+  trash: <><path d="M4 7h16M9 7V4.5h6V7" /><path d="M6.5 7l1 13h9l1-13" /><path d="M10 11v5.5M14 11v5.5" /></>,
+  sparkles: <><path d="M12 3.5l1.7 4.8 4.8 1.7-4.8 1.7L12 16.5l-1.7-4.8L5.5 10l4.8-1.7z" /><path d="M18.5 15.5l.7 1.8 1.8.7-1.8.7-.7 1.8-.7-1.8-1.8-.7 1.8-.7z" /></>,
+  text: <path d="M5 6h14M5 12h14M5 18h9" />,
+  heading: <path d="M6 5v14M18 5v14M6 12h12" />,
+  quote: <><path d="M9 7H6a1 1 0 0 0-1 1v4h4v3a3 3 0 0 1-3 3" /><path d="M19 7h-3a1 1 0 0 0-1 1v4h4v3a3 3 0 0 1-3 3" /></>,
+  image: <><rect x="3.5" y="5" width="17" height="14" rx="2" /><circle cx="9" cy="10" r="1.5" /><path d="M20.5 16l-5-5-8 8" /></>,
+  minus: <path d="M5 12h14" />,
+  plus: <path d="M12 5v14M5 12h14" />,
+  chart: <path d="M5 19V11M12 19V5M19 19v-6" />,
 };
 
 export type IconName = keyof typeof PATHS;
