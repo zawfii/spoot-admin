@@ -6,19 +6,31 @@ interface Props extends HTMLAttributes<HTMLSpanElement> {
   tone?: Tone;
 }
 
-const toneClasses: Record<Tone, string> = {
-  neutral: 'bg-surfaceLow text-onSurfaceVariant',
-  success: 'bg-primary/10 text-primaryLight',
-  warning: 'bg-amber-100 text-amber-800',
-  danger: 'bg-red-100 text-red-700',
-  brand: 'bg-secondaryFixed text-onSecondaryFixed',
+// Tekst zawsze ciemnozielony (kontrast), kolor statusu niesie tło i kropka.
+const toneClasses: Record<Tone, [string, string]> = {
+  neutral: ['bg-cardMutedDark', 'bg-onSurfaceVariant'],
+  success: ['bg-ratedSurface', 'bg-ratingHigh'],
+  warning: ['bg-secondaryFixed', 'bg-secondary'],
+  danger: ['bg-red-100', 'bg-red-600'],
+  brand: ['bg-secondaryFixed', 'bg-secondary'],
 };
 
-export function Badge({ tone = 'neutral', className = '', ...props }: Props) {
+export function Badge({ tone = 'neutral', className = '', children, ...props }: Props) {
+  const [bg, dot] = toneClasses[tone];
   return (
     <span
-      className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${toneClasses[tone]} ${className}`}
+      className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs leading-[18px] font-heading font-semibold text-onSurface whitespace-nowrap ${bg} ${className}`}
       {...props}
-    />
+    >
+      <span aria-hidden="true" className={`w-[7px] h-[7px] rounded-full ${dot}`} />
+      {children}
+    </span>
   );
+}
+
+// Apka (app/admin-places.tsx) zatwierdza miejsca jako 'active'; zaseedowane mają status null.
+export function PlaceStatusBadge({ status }: { status: string | null }) {
+  if (status === 'pending') return <Badge tone="warning">Oczekuje</Badge>;
+  if (status === 'rejected') return <Badge tone="danger">Odrzucone</Badge>;
+  return <Badge tone="success">Zatwierdzone</Badge>;
 }

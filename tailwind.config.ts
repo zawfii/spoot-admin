@@ -24,6 +24,23 @@ const config: Config = {
         outlineVariant: 'rgba(3, 39, 26, 0.15)',
         cardMuted: '#eae5de',
         cardMutedDark: '#d3cdc5',
+        ratingHigh: '#2e7d32',
+        ratedSurface: '#eaf4ee',
+        // Starsze ekrany używają gray-*/black — tu przebarwione na ciepłe tony Spoot,
+        // zamiast przepisywać klasy w każdym pliku. Szarości 400+ trzymają kontrast 4.5:1 na kremie.
+        gray: {
+          50: '#f7efe5',
+          100: '#eae5de',
+          200: '#d3cdc5',
+          300: '#b9b2a8',
+          400: '#5f6b65',
+          500: '#4a5751',
+          600: '#34433c',
+          700: '#1e3028',
+          800: '#10291f',
+          900: '#03271a',
+        },
+        black: '#03271a',
       },
       fontFamily: {
         sans: ['var(--font-body)', 'ui-sans-serif', 'system-ui', 'sans-serif'],

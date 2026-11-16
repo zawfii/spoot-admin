@@ -24,8 +24,8 @@ export default async function GuidesPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold">Przewodniki Spoot</h1>
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
+        <h1 className="font-heading text-[26px] leading-[34px] lg:text-[32px] lg:leading-10 font-bold">Przewodniki Spoot</h1>
         <form action={createGuide} className="flex gap-2">
           <input name="title" placeholder="Tytuł przewodnika..." required
             className="border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black" />

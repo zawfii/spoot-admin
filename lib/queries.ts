@@ -27,6 +27,7 @@ export async function getDashboardExtras() {
     promotionsPending,
     ownershipPending,
     dishCategoriesPending,
+    dealsPending,
     placesMissingCoords,
     promotionsExpiringSoon,
     listsUnpublished,
@@ -37,6 +38,7 @@ export async function getDashboardExtras() {
     supabase.from('promotions').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
     supabase.from('ownership_requests').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
     supabase.from('dish_category_suggestions').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
+    supabase.from('deals').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
     supabase.from('places').select('id', { count: 'exact', head: true }).or('lat.is.null,lng.is.null'),
     supabase.from('promotions').select('id', { count: 'exact', head: true }).eq('status', 'approved').lte('active_until', in3Days).gt('active_until', now),
     supabase.from('spoot_lists').select('id', { count: 'exact', head: true }).eq('is_published', false),
@@ -50,6 +52,7 @@ export async function getDashboardExtras() {
       promotionsPending: promotionsPending.count ?? 0,
       ownershipPending: ownershipPending.count ?? 0,
       dishCategoriesPending: dishCategoriesPending.count ?? 0,
+      dealsPending: dealsPending.count ?? 0,
     },
     placesMissingCoords: placesMissingCoords.count ?? 0,
     promotionsExpiringSoon: promotionsExpiringSoon.count ?? 0,
@@ -67,7 +70,9 @@ export async function getPlaces(search = '', city = '', status = '') {
 
   if (search) query = query.ilike('name', `%${search}%`);
   if (city) query = query.eq('city', city);
-  if (status) query = query.eq('status', status);
+  // Zaseedowane miejsca mają status null — liczą się jako zatwierdzone.
+  if (status === 'active') query = query.or('status.eq.active,status.is.null');
+  else if (status) query = query.eq('status', status);
 
   const { data } = await query.limit(100);
   return data ?? [];

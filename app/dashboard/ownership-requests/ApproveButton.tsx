@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { approveOwnershipRequest } from '@/app/actions/ownership';
+import { Button } from '@/components/ui/Button';
 
 export default function ApproveButton({ requestId }: { requestId: string }) {
   const [loading, setLoading] = useState(false);
@@ -15,12 +16,8 @@ export default function ApproveButton({ requestId }: { requestId: string }) {
   }
 
   return (
-    <button
-      onClick={handleApprove}
-      disabled={loading}
-      className="px-3 py-1 rounded-lg bg-green-500 text-white text-xs hover:bg-green-600 disabled:opacity-50"
-    >
-      {loading ? '...' : 'Zatwierdź'}
-    </button>
+    <Button onClick={handleApprove} disabled={loading} className="flex-1">
+      {loading ? 'Zapisuję…' : 'Zatwierdź'}
+    </Button>
   );
 }

@@ -178,9 +178,9 @@ export default function GuideEditPage() {
         )}
       </div>
 
-      <div className="flex gap-6 items-start">
+      <div className="flex flex-col lg:flex-row gap-6 items-stretch lg:items-start">
         {/* LEFT PANEL — Metadata */}
-        <div className="w-72 flex-shrink-0 space-y-4">
+        <div className="w-full lg:w-72 flex-shrink-0 space-y-4">
           <div className="bg-white rounded-2xl border p-4 space-y-3">
             <div>
               <label className="block text-xs font-medium text-gray-500 mb-1">Tytuł</label>

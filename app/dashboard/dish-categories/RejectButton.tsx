@@ -10,7 +10,7 @@ export default function RejectButton({ suggestionId }: { suggestionId: string })
     <>
       <button
         onClick={() => setOpen(true)}
-        className="px-3 py-1 rounded-lg bg-red-100 text-red-700 text-xs hover:bg-red-200"
+        className="min-h-9 px-3.5 rounded-lg border border-primary/25 text-primary text-sm font-heading font-semibold hover:bg-surfaceLow"
       >
         Odrzuć
       </button>

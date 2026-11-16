@@ -19,7 +19,7 @@ export default function RejectPromotionButton({ promotionId }: { promotionId: st
     <button
       onClick={handleReject}
       disabled={loading}
-      className="px-3 py-1 rounded-lg bg-red-100 text-red-700 text-xs hover:bg-red-200 disabled:opacity-50"
+      className="min-h-9 px-3.5 rounded-lg border border-primary/25 text-primary text-sm font-heading font-semibold hover:bg-surfaceLow disabled:opacity-50"
     >
       {loading ? '...' : 'Odrzuć'}
     </button>

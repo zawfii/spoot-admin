@@ -81,7 +81,7 @@ export default function SpootListEditPage() {
       </div>
 
       <div className="bg-white rounded-2xl border p-6 space-y-4 mb-6">
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium mb-1">Tytuł</label>
             <input value={list.title} onChange={e => setList(l => l ? { ...l, title: e.target.value } : l)}

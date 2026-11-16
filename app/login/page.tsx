@@ -4,6 +4,7 @@ import { useSearchParams } from 'next/navigation';
 import { login } from '@/app/actions/auth';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
+import { Logo } from '@/components/Logo';
 
 function LoginForm() {
   const params = useSearchParams();
@@ -55,13 +56,10 @@ function LoginForm() {
 
 export default function LoginPage() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-surface">
-      <Card className="w-full max-w-sm shadow-sm p-8">
-        <div className="flex items-center gap-2 mb-1">
-          <span className="w-2 h-2 rounded-full bg-secondary" />
-          <span className="text-xs font-medium text-onSurfaceVariant tracking-wide uppercase">Spoot</span>
-        </div>
-        <h1 className="text-2xl font-heading font-bold mb-6 text-onSurface">Panel administracyjny</h1>
+    <div className="min-h-screen flex items-center justify-center bg-surface px-4">
+      <Card className="w-full max-w-sm p-6 sm:p-8">
+        <Logo size={28} />
+        <h1 className="text-2xl font-heading font-bold mt-3 mb-6 text-onSurface">Panel administracyjny</h1>
         <Suspense>
           <LoginForm />
         </Suspense>

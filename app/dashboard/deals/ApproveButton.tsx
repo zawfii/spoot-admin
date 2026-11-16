@@ -17,7 +17,7 @@ export default function ApproveButton({ dealId }: { dealId: string }) {
     <button
       onClick={handleApprove}
       disabled={loading}
-      className="px-3 py-1 rounded-lg bg-green-500 text-white text-xs hover:bg-green-600 disabled:opacity-50"
+      className="min-h-9 px-3.5 rounded-lg bg-primary text-onPrimary text-sm font-heading font-semibold hover:bg-primaryLight disabled:opacity-50"
     >
       {loading ? '...' : 'Zatwierdź'}
     </button>

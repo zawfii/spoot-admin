@@ -1,6 +1,25 @@
 import { getOwnershipRequests } from '@/lib/queries';
+import { Badge } from '@/components/ui/Badge';
+import { FilterChip } from '@/components/ui/FilterChip';
+import { PageHeader } from '@/components/ui/PageHeader';
+import { plural } from '@/lib/plural';
 import ApproveButton from './ApproveButton';
 import RejectButton from './RejectButton';
+
+function StatusBadge({ status }: { status: string }) {
+  if (status === 'pending') return <Badge tone="warning">Oczekuje</Badge>;
+  if (status === 'approved') return <Badge tone="success">Zatwierdzone</Badge>;
+  return <Badge tone="danger">Odrzucone</Badge>;
+}
+
+function Field({ label, children, mono }: { label: string; children: React.ReactNode; mono?: boolean }) {
+  return (
+    <div className="flex flex-col gap-0.5 min-w-0">
+      <dt className="font-heading font-bold text-[10px] leading-[14px] tracking-[0.8px] uppercase text-onSurfaceVariant">{label}</dt>
+      <dd className={`text-sm font-medium break-words ${mono ? 'font-mono' : ''}`}>{children}</dd>
+    </div>
+  );
+}
 
 export default async function OwnershipRequestsPage({
   searchParams,
@@ -10,78 +29,59 @@ export default async function OwnershipRequestsPage({
   const { filter: filterParam } = await searchParams;
   const filter = filterParam === 'all' ? 'all' : 'pending';
   const requests = await getOwnershipRequests(filter);
+  const pendingCount = requests.filter(r => r.status === 'pending').length;
 
-  function statusBadge(status: string) {
-    if (status === 'pending') return <span className="px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-800 text-xs font-medium">Oczekuje</span>;
-    if (status === 'approved') return <span className="px-2 py-0.5 rounded-full bg-green-100 text-green-800 text-xs font-medium">Zatwierdzone</span>;
-    return <span className="px-2 py-0.5 rounded-full bg-red-100 text-red-800 text-xs font-medium">Odrzucone</span>;
-  }
-
-  function formatDate(iso: string) {
-    return new Date(iso).toLocaleDateString('pl-PL', { day: 'numeric', month: 'short', year: 'numeric' });
-  }
+  const formatDate = (iso: string) =>
+    new Date(iso).toLocaleDateString('pl-PL', { day: 'numeric', month: 'short', year: 'numeric' });
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold">Prośby właścicieli</h1>
-        <div className="flex gap-2">
-          <a href="?filter=pending" className={`px-3 py-1.5 rounded-lg text-sm border ${filter === 'pending' ? 'bg-black text-white border-black' : 'hover:bg-gray-50'}`}>
-            Oczekujące
-          </a>
-          <a href="?filter=all" className={`px-3 py-1.5 rounded-lg text-sm border ${filter === 'all' ? 'bg-black text-white border-black' : 'hover:bg-gray-50'}`}>
-            Wszystkie
-          </a>
-        </div>
-      </div>
+    <div className="max-w-[1160px] mx-auto">
+      <PageHeader
+        title="Prośby właścicieli"
+        subtitle={pendingCount > 0
+          ? `${pendingCount} ${plural(pendingCount, 'czeka', 'czekają', 'czeka')} na decyzję. Zatwierdzenie daje dostęp do panelu lokalu.`
+          : 'Nic nie czeka na decyzję.'}
+        actions={
+          <div role="group" aria-label="Filtr" className="flex gap-2">
+            <FilterChip href="?filter=pending" active={filter === 'pending'}>Oczekujące</FilterChip>
+            <FilterChip href="?filter=all" active={filter === 'all'}>Wszystkie</FilterChip>
+          </div>
+        }
+      />
 
-      <div className="bg-white rounded-2xl border overflow-hidden">
-        <table className="w-full text-sm">
-          <thead className="bg-gray-50 border-b">
-            <tr>
-              <th className="text-left px-4 py-3 font-medium">Lokal</th>
-              <th className="text-left px-4 py-3 font-medium">Konto</th>
-              <th className="text-left px-4 py-3 font-medium">Imię i nazwisko</th>
-              <th className="text-left px-4 py-3 font-medium">Telefon</th>
-              <th className="text-left px-4 py-3 font-medium">NIP</th>
-              <th className="text-left px-4 py-3 font-medium">Data</th>
-              <th className="text-left px-4 py-3 font-medium">Status</th>
-              <th className="text-left px-4 py-3 font-medium">Akcje</th>
-            </tr>
-          </thead>
-          <tbody>
-            {requests.map(req => (
-              <tr key={req.id} className="border-b last:border-0 hover:bg-gray-50">
-                <td className="px-4 py-3 font-medium">{req.place_name}</td>
-                <td className="px-4 py-3 text-gray-500 text-xs">{req.user_display_name}</td>
-                <td className="px-4 py-3 text-gray-700">{req.full_name ?? <span className="text-gray-300">—</span>}</td>
-                <td className="px-4 py-3 text-gray-500 whitespace-nowrap">{req.phone ?? <span className="text-gray-300">—</span>}</td>
-                <td className="px-4 py-3 font-mono">{req.nip}</td>
-                <td className="px-4 py-3 text-gray-500 whitespace-nowrap">{formatDate(req.created_at)}</td>
-                <td className="px-4 py-3">{statusBadge(req.status)}</td>
-                <td className="px-4 py-3">
-                  {req.status === 'pending' && (
-                    <div className="flex gap-2">
-                      <ApproveButton requestId={req.id} />
-                      <RejectButton requestId={req.id} />
-                    </div>
-                  )}
-                  {req.status !== 'pending' && req.admin_note && (
-                    <span className="text-gray-400 text-xs italic truncate max-w-[120px] block">{req.admin_note}</span>
-                  )}
-                </td>
-              </tr>
-            ))}
-            {requests.length === 0 && (
-              <tr>
-                <td colSpan={8} className="px-4 py-8 text-center text-gray-400">
-                  {filter === 'pending' ? 'Brak oczekujących prośb' : 'Brak prośb'}
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+      {requests.length === 0 ? (
+        <div className="bg-cardMuted rounded-xl px-6 py-10 text-center">
+          <p className="font-heading font-semibold">{filter === 'pending' ? 'Brak oczekujących próśb' : 'Brak próśb'}</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,340px),1fr))] gap-4">
+          {requests.map(req => (
+            <article key={req.id} className="bg-cardMuted rounded-xl p-4 lg:p-5 flex flex-col gap-4">
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex flex-col min-w-0">
+                  <h2 className="font-heading font-bold text-[17px] lg:text-lg leading-6">{req.place_name}</h2>
+                  <span className="text-[13px] leading-[18px] text-onSurfaceVariant">{req.user_display_name} · {formatDate(req.created_at)}</span>
+                </div>
+                <StatusBadge status={req.status} />
+              </div>
+              <dl className="grid grid-cols-2 gap-x-4 gap-y-3.5 p-4 rounded-lg bg-surface">
+                <Field label="Imię i nazwisko">{req.full_name ?? '—'}</Field>
+                <Field label="Telefon">{req.phone ?? '—'}</Field>
+                <Field label="NIP" mono>{req.nip}</Field>
+                {req.message && <div className="col-span-2"><Field label="Wiadomość">{req.message}</Field></div>}
+              </dl>
+              {req.status === 'pending' ? (
+                <div className="flex gap-2">
+                  <ApproveButton requestId={req.id} />
+                  <RejectButton requestId={req.id} />
+                </div>
+              ) : req.admin_note ? (
+                <p className="text-[13px] text-onSurfaceVariant italic">Notatka: {req.admin_note}</p>
+              ) : null}
+            </article>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

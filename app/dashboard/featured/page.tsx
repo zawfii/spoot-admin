@@ -54,7 +54,7 @@ export default function FeaturedPage() {
 
   return (
     <div className="max-w-xl">
-      <h1 className="text-2xl font-bold mb-6">Wyróżnione miejsca</h1>
+      <h1 className="font-heading text-[26px] leading-[34px] lg:text-[32px] lg:leading-10 font-bold mb-6">Wyróżnione miejsca</h1>
       <p className="text-sm text-gray-500 mb-6">
         Miejsca wyróżnione są pokazywane na głównym ekranie appki. Maksymalnie 10 slotów.
       </p>
