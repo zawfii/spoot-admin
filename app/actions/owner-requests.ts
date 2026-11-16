@@ -63,3 +63,30 @@ export async function markMenuRequestDone(id: string): Promise<{ error?: string 
   revalidatePath('/dashboard/menu-requests');
   return {};
 }
+
+// Strona dla lokalu: pending → approved | rejected, approved → done.
+const WEBSITE_FROM: Record<string, string> = { approved: 'pending', rejected: 'pending', done: 'approved' };
+
+export async function setWebsiteRequestStatus(
+  id: string,
+  status: 'approved' | 'rejected' | 'done',
+  adminNote?: string,
+): Promise<{ error?: string }> {
+  const authError = await assertAdminRole();
+  if (authError) return { error: authError };
+  const from = WEBSITE_FROM[status];
+  if (!from) return { error: 'Nieprawidłowy status' };
+  const supabase = createClient();
+  const patch: { status: string; admin_note?: string | null } = { status };
+  if (status === 'rejected') patch.admin_note = adminNote?.slice(0, 500) || null;
+  const { data, error } = await supabase
+    .from('website_requests')
+    .update(patch)
+    .eq('id', id)
+    .eq('status', from)
+    .select('id');
+  if (error) return { error: error.message };
+  if (!data?.length) return { error: 'Prośba zmieniła się w międzyczasie — odśwież stronę.' };
+  revalidatePath('/dashboard/website-requests');
+  return {};
+}

@@ -27,6 +27,7 @@ const groups: { title?: string; links: NavLink[] }[] = [
       { href: '/dashboard/deals', label: 'Oferty dnia', icon: 'tag', pendingTable: 'deals' },
       { href: '/dashboard/deal-promotions', label: 'Promocje ofert', icon: 'trending', pendingTable: 'deal_promotions' },
       { href: '/dashboard/menu-requests', label: 'Prośby o menu', icon: 'list', pendingTable: 'menu_entry_requests' },
+      { href: '/dashboard/website-requests', label: 'Strony lokali', icon: 'store', pendingTable: 'website_requests' },
       { href: '/dashboard/dish-categories', label: 'Nowe kategorie', icon: 'layers', pendingTable: 'dish_category_suggestions' },
     ],
   },
