@@ -33,6 +33,15 @@ const groups: { title?: string; links: NavLink[] }[] = [
   },
 ];
 
+// Tylko dla roli 'admin' — editor (pracownik) tej grupy nie widzi.
+const adminGroup: (typeof groups)[number] = {
+  title: 'Zespół',
+  links: [
+    { href: '/dashboard/staff', label: 'Pracownicy', icon: 'users' },
+    { href: '/dashboard/history', label: 'Historia zmian', icon: 'clock' },
+  ],
+};
+
 const pendingLinks = groups.flatMap(g => g.links).filter(l => l.pendingTable);
 
 function AdminTag() {
@@ -48,6 +57,7 @@ export default function Sidebar() {
   const router = useRouter();
   const [counts, setCounts] = useState<Record<string, number>>({});
   const [menuOpen, setMenuOpen] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     const supabase = createClient();
@@ -57,6 +67,9 @@ export default function Sidebar() {
           .then(({ count }) => [l.href, count ?? 0] as const)
       )
     ).then(entries => setCounts(Object.fromEntries(entries)));
+    supabase.auth.getUser()
+      .then(({ data: { user } }) => user && supabase.from('profiles').select('role').eq('id', user.id).single())
+      .then(res => setIsAdmin(res?.data?.role === 'admin'));
   }, []);
 
   useEffect(() => setMenuOpen(false), [pathname]);
@@ -76,7 +89,7 @@ export default function Sidebar() {
   // large = menu na telefonie: wyższe wiersze i większy tekst pod palec.
   const nav = (large: boolean) => (
     <>
-      {groups.map((group, i) => (
+      {(isAdmin ? [...groups, adminGroup] : groups).map((group, i) => (
         <div key={i} className="flex flex-col gap-0.5">
           {group.title && (
             <p className="px-3 pb-1.5 font-heading font-bold text-[11px] leading-4 tracking-[0.8px] uppercase text-white/60">{group.title}</p>

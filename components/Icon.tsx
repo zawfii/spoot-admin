@@ -28,6 +28,8 @@ const PATHS = {
   minus: <path d="M5 12h14" />,
   plus: <path d="M12 5v14M5 12h14" />,
   chart: <path d="M5 19V11M12 19V5M19 19v-6" />,
+  users: <><circle cx="9" cy="8.5" r="3.5" /><path d="M2.5 20a6.5 6.5 0 0 1 13 0" /><path d="M16 5.2a3.5 3.5 0 0 1 0 6.6M18 14.2a6.5 6.5 0 0 1 3.5 5.8" /></>,
+  clock: <><circle cx="12" cy="12" r="8.5" /><path d="M12 7.5V12l3 2" /></>,
 };
 
 export type IconName = keyof typeof PATHS;
