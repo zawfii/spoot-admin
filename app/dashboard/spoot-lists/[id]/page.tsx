@@ -147,7 +147,7 @@ export default function SpootListEditPage() {
     const merged = { ...list, ...next };
     setList(merged);
     setSaved(settingsOf(merged));
-    flash('ok', extra.is_published === true ? 'Opublikowano — lista jest w aplikacji.' : extra.is_published === false ? 'Wycofano z aplikacji.' : 'Zapisano.');
+    flash('ok', extra.is_published === true ? 'Lista jest na Starcie w aplikacji.' : extra.is_published === false ? 'Zdjęto ze Startu.' : 'Zapisano.');
   }
 
   async function addPlace(place: PlaceResult) {
@@ -209,13 +209,13 @@ export default function SpootListEditPage() {
       <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
         <div className="flex items-center gap-3 min-w-0">
           <h1 className="font-heading font-bold text-[26px] leading-[34px] lg:text-[32px] lg:leading-10 truncate">{list.title.trim() || 'Bez tytułu'}</h1>
-          {list.is_published ? <Badge tone="success">W aplikacji</Badge> : <Badge tone="neutral">Szkic</Badge>}
+          {list.is_published ? <Badge tone="success">Na Starcie</Badge> : <Badge tone="neutral">Szkic</Badge>}
         </div>
         {list.is_published ? (
-          <Button variant="ghost" onClick={() => save({ is_published: false })} disabled={busy}>Wycofaj z aplikacji</Button>
+          <Button variant="ghost" onClick={() => save({ is_published: false })} disabled={busy}>Zdejmij ze Startu</Button>
         ) : (
           <Button onClick={() => save({ is_published: true })} disabled={busy || places.length === 0} title={places.length === 0 ? 'Dodaj najpierw miejsca' : undefined}>
-            Opublikuj
+            Pokaż na Starcie
           </Button>
         )}
       </div>

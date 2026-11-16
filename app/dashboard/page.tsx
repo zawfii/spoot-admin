@@ -27,8 +27,8 @@ export default async function DashboardPage() {
 
   const statTiles = [
     { label: 'Miejsc w bazie', value: stats.placesTotal },
-    { label: 'Opublikowanych list Spoot', value: stats.listsPublished },
-    { label: 'Opublikowanych przewodników', value: stats.guidesPublished },
+    { label: 'List Spoot na Starcie', value: stats.listsPublished },
+    { label: 'Przewodników na Starcie', value: stats.guidesPublished },
     { label: 'Wyróżnionych miejsc', value: stats.featuredCount },
   ];
 

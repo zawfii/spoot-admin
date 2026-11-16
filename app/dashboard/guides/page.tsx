@@ -40,7 +40,7 @@ export default async function GuidesPage() {
     <div className="max-w-[1160px] mx-auto">
       <PageHeader
         title="Przewodniki Spoot"
-        subtitle={`${guides.length} ${plural(guides.length, 'przewodnik', 'przewodniki', 'przewodników')} · ${published} w aplikacji`}
+        subtitle={`${guides.length} ${plural(guides.length, 'przewodnik', 'przewodniki', 'przewodników')} · ${published} na Starcie`}
       />
 
       <form action={createGuide} className="bg-cardMuted rounded-xl p-4 lg:p-5 mb-8 flex flex-wrap items-end gap-3">
@@ -83,7 +83,7 @@ export default async function GuidesPage() {
                   <span className="text-xs text-onSurfaceVariant truncate">
                     {[guide.city ?? 'Cała Polska', guide.theme].filter(Boolean).join(' · ')}
                   </span>
-                  {guide.is_published ? <Badge tone="success">W aplikacji</Badge> : <Badge tone="neutral">Szkic</Badge>}
+                  {guide.is_published ? <Badge tone="success">Na Starcie</Badge> : <Badge tone="neutral">Szkic</Badge>}
                 </div>
                 {guide.is_sponsored && <Badge tone="brand" className="self-start">Sponsorowany</Badge>}
               </Link>

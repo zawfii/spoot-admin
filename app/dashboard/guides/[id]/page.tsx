@@ -112,7 +112,7 @@ export default function GuideEditPage() {
     setGuide(merged);
     setBlocks(keptBlocks);
     setSavedSnapshot(snapshotOf(merged, keptBlocks));
-    flash('ok', extra.is_published === true ? 'Opublikowano — przewodnik jest w aplikacji.' : extra.is_published === false ? 'Wycofano z aplikacji.' : 'Zapisano.');
+    flash('ok', extra.is_published === true ? 'Przewodnik jest na Starcie w aplikacji.' : extra.is_published === false ? 'Zdjęto ze Startu.' : 'Zapisano.');
   }
 
   async function handleGenerateAI() {
@@ -171,16 +171,16 @@ export default function GuideEditPage() {
       <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
         <div className="flex items-center gap-3 min-w-0">
           <h1 className="font-heading font-bold text-[26px] leading-[34px] lg:text-[32px] lg:leading-10 truncate">{guide.title.trim() || 'Bez tytułu'}</h1>
-          {guide.is_published ? <Badge tone="success">W aplikacji</Badge> : <Badge tone="neutral">Szkic</Badge>}
+          {guide.is_published ? <Badge tone="success">Na Starcie</Badge> : <Badge tone="neutral">Szkic</Badge>}
         </div>
         <div className="flex flex-wrap gap-2">
           <Button variant={dirty ? 'primary' : 'ghost'} onClick={() => save()} disabled={!dirty || busy}>
             {busy ? 'Zapisuję…' : dirty ? 'Zapisz' : 'Zapisane'}
           </Button>
           {guide.is_published ? (
-            <Button variant="ghost" onClick={() => save({ is_published: false })} disabled={busy}>Wycofaj z aplikacji</Button>
+            <Button variant="ghost" onClick={() => save({ is_published: false })} disabled={busy}>Zdejmij ze Startu</Button>
           ) : (
-            <Button variant="secondary" onClick={() => save({ is_published: true })} disabled={busy || blocks.length === 0}>Opublikuj</Button>
+            <Button variant="secondary" onClick={() => save({ is_published: true })} disabled={busy || blocks.length === 0}>Pokaż na Starcie</Button>
           )}
         </div>
       </div>
@@ -268,7 +268,7 @@ export default function GuideEditPage() {
             <details className="group">
               <summary className="cursor-pointer min-h-9 flex items-center text-sm font-heading font-semibold text-primary">Adres w aplikacji (slug)</summary>
               <input aria-label="Slug" value={guide.slug} onChange={e => set({ slug: toSlug(e.target.value) })} className={`${fieldClass} font-mono mt-1`} />
-              {guide.is_published && <p className="text-xs text-onSurfaceVariant mt-1">Przewodnik jest opublikowany — zmiana adresu zepsuje udostępnione linki.</p>}
+              {guide.is_published && <p className="text-xs text-onSurfaceVariant mt-1">Przewodnik jest na Starcie — zmiana adresu zepsuje udostępnione linki.</p>}
             </details>
           </section>
 

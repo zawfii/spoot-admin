@@ -33,7 +33,7 @@ export default async function SpootListsPage() {
     <div className="max-w-[1160px] mx-auto">
       <PageHeader
         title="Listy Spoot"
-        subtitle={`${lists.length} ${plural(lists.length, 'lista', 'listy', 'list')} · ${published} w aplikacji`}
+        subtitle={`${lists.length} ${plural(lists.length, 'lista', 'listy', 'list')} · ${published} na Starcie`}
       />
 
       <form action={createSpootList} className="bg-cardMuted rounded-xl p-4 lg:p-5 mb-8 flex flex-wrap items-end gap-3">
@@ -67,7 +67,7 @@ export default async function SpootListsPage() {
                 </div>
                 <div className="flex items-center justify-between gap-2 px-0.5">
                   <span className="text-xs text-onSurfaceVariant truncate">{list.city ?? 'Cała Polska'}</span>
-                  {list.is_published ? <Badge tone="success">W aplikacji</Badge> : <Badge tone="neutral">Szkic</Badge>}
+                  {list.is_published ? <Badge tone="success">Na Starcie</Badge> : <Badge tone="neutral">Szkic</Badge>}
                 </div>
               </Link>
             );
