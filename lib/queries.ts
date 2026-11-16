@@ -135,7 +135,19 @@ export type OwnershipRequestRow = {
   user_display_name: string;
 };
 
-export async function getOwnershipRequests(filter: 'all' | 'pending' = 'pending'): Promise<OwnershipRequestRow[]> {
+export type OwnershipStatus = 'pending' | 'approved' | 'rejected';
+
+export async function getOwnershipCounts(): Promise<Record<OwnershipStatus, number>> {
+  const supabase = createClient();
+  const statuses: OwnershipStatus[] = ['pending', 'approved', 'rejected'];
+  const counts = await Promise.all(statuses.map(status =>
+    supabase.from('ownership_requests').select('id', { count: 'exact', head: true }).eq('status', status)
+      .then(({ count }) => count ?? 0)
+  ));
+  return { pending: counts[0], approved: counts[1], rejected: counts[2] };
+}
+
+export async function getOwnershipRequests(filter: 'all' | OwnershipStatus = 'pending'): Promise<OwnershipRequestRow[]> {
   const supabase = createClient();
   let query = supabase
     .from('ownership_requests')
@@ -145,7 +157,7 @@ export async function getOwnershipRequests(filter: 'all' | 'pending' = 'pending'
     `)
     .order('created_at', { ascending: false });
 
-  if (filter === 'pending') query = query.eq('status', 'pending');
+  if (filter !== 'all') query = query.eq('status', filter);
 
   const { data, error } = await query;
   if (error) { console.error('getOwnershipRequests:', error.message); return []; }
@@ -171,6 +183,58 @@ export async function getOwnershipRequests(filter: 'all' | 'pending' = 'pending'
     place_name: row.places?.name ?? '—',
     user_display_name: profileMap[row.user_id]?.display_name ?? row.user_id,
   }));
+}
+
+// --- Aktywność właścicieli (supabase/migrations/20261125000000_owner_activity.sql w repo spotto) ---
+
+export type OwnerOverviewRow = {
+  owner_id: string;
+  place_id: string;
+  place_name: string | null;
+  display_name: string | null;
+  username: string | null;
+  account_created: string;
+  last_sign_in: string | null;
+  last_active: string | null;
+  active_sessions: number;
+  logins: number;
+  active_days_30: number;
+  changes_30: number;
+  last_change: string | null;
+  menu_items: number;
+  deals: number;
+  promotions: number;
+  photos: number;
+  tracking_since: string | null;
+};
+
+export type OwnerActivityEvent = {
+  owner_id: string;
+  kind: 'login' | 'active' | 'change';
+  entity: string | null;
+  action: string | null;
+  detail: string | null;
+  created_at: string;
+};
+
+/** null = migracja z dziennikiem jeszcze nie wgrana. */
+export async function getOwnerOverview(): Promise<OwnerOverviewRow[] | null> {
+  const { data, error } = await createClient().rpc('admin_owner_overview');
+  if (error) { console.error('getOwnerOverview:', error.message); return null; }
+  return data ?? [];
+}
+
+export async function getOwnerRecentActivity(ownerIds: string[]): Promise<OwnerActivityEvent[]> {
+  if (!ownerIds.length) return [];
+  const { data, error } = await createClient()
+    .from('owner_activity')
+    .select('owner_id, kind, entity, action, detail, created_at')
+    .in('owner_id', ownerIds)
+    .in('kind', ['login', 'change'])
+    .order('created_at', { ascending: false })
+    .limit(500);
+  if (error) { console.error('getOwnerRecentActivity:', error.message); return []; }
+  return data ?? [];
 }
 
 // --- Promotions ---
