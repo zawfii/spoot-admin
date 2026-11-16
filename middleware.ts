@@ -23,26 +23,25 @@ export async function middleware(request: NextRequest) {
 
   const { data: { user } } = await supabase.auth.getUser();
 
-  if (!user && request.nextUrl.pathname.startsWith('/dashboard')) {
-    return NextResponse.redirect(new URL('/login', request.url));
-  }
+  // /api/* też tylko dla admin/editor — /api/ai/* wydaje klucz Anthropic (było otwarte dla każdego).
+  const isApi = request.nextUrl.pathname.startsWith('/api');
+  const deny = (status: 401 | 403) => isApi
+    ? NextResponse.json({ error: status === 401 ? 'Unauthorized' : 'Forbidden' }, { status })
+    : NextResponse.redirect(new URL(status === 401 ? '/login' : '/login?error=unauthorized', request.url));
 
-  // Check role for dashboard access
-  if (user && request.nextUrl.pathname.startsWith('/dashboard')) {
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', user.id)
-      .single();
+  if (!user) return deny(401);
 
-    if (!profile?.role || !['admin', 'editor'].includes(profile.role)) {
-      return NextResponse.redirect(new URL('/login?error=unauthorized', request.url));
-    }
-  }
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id)
+    .single();
+
+  if (!profile?.role || !['admin', 'editor'].includes(profile.role)) return deny(403);
 
   return supabaseResponse;
 }
 
 export const config = {
-  matcher: ['/dashboard/:path*'],
+  matcher: ['/dashboard/:path*', '/api/:path*'],
 };
