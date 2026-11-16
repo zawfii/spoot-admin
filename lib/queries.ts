@@ -132,6 +132,9 @@ export type OwnershipRequestRow = {
   admin_note: string | null;
   created_at: string;
   place_name: string;
+  /** 'pending' = lokal dodany razem ze zgłoszeniem (panel właściciela), jeszcze niezatwierdzony. */
+  place_status: string | null;
+  place_address: string | null;
   user_display_name: string;
 };
 
@@ -153,7 +156,7 @@ export async function getOwnershipRequests(filter: 'all' | OwnershipStatus = 'pe
     .from('ownership_requests')
     .select(`
       id, user_id, place_id, full_name, phone, nip, message, status, admin_note, created_at,
-      places(name)
+      places(name, status, address, city)
     `)
     .order('created_at', { ascending: false });
 
@@ -181,6 +184,8 @@ export async function getOwnershipRequests(filter: 'all' | OwnershipStatus = 'pe
     admin_note: row.admin_note,
     created_at: row.created_at,
     place_name: row.places?.name ?? '—',
+    place_status: row.places?.status ?? null,
+    place_address: [row.places?.address, row.places?.city].filter(Boolean).join(', ') || null,
     user_display_name: profileMap[row.user_id]?.display_name ?? row.user_id,
   }));
 }

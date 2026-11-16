@@ -80,6 +80,23 @@ function CardHeader({ req }: { req: OwnershipRequestRow }) {
   );
 }
 
+// Lokal dodany przez właściciela razem ze zgłoszeniem — bez punktu na mapie i metra.
+function NewPlaceNotice({ req }: { req: OwnershipRequestRow }) {
+  if (req.place_status !== 'pending') return null;
+  return (
+    <div className="flex flex-col gap-1.5 p-3 rounded-lg bg-surface">
+      <div className="flex flex-wrap items-center gap-2">
+        <Badge tone="warning">Nowy lokal</Badge>
+        {req.place_address && <span className="text-[13px] text-onSurfaceVariant">{req.place_address}</span>}
+      </div>
+      <p className="text-[13px] text-onSurfaceVariant">
+        Lokalu nie było w bazie — właściciel dodał go sam. Najpierw uzupełnij go (punkt na mapie, miasto do synchronizacji) i zatwierdź, potem zatwierdź to zgłoszenie.
+      </p>
+      <a href={`/dashboard/places/${req.place_id}`} className="self-start text-[13px] font-heading font-semibold text-primary underline underline-offset-2 min-h-9 flex items-center">Otwórz lokal</a>
+    </div>
+  );
+}
+
 function OwnerCard({ req, stats, events }: { req: OwnershipRequestRow; stats?: OwnerOverviewRow; events: OwnerActivityEvent[] }) {
   return (
     <article className="bg-cardMuted rounded-xl p-4 lg:p-5 flex flex-col gap-4">
@@ -186,6 +203,7 @@ export default async function OwnershipRequestsPage({
             ) : (
               <article key={req.id} className="bg-cardMuted rounded-xl p-4 lg:p-5 flex flex-col gap-4">
                 <CardHeader req={req} />
+                <NewPlaceNotice req={req} />
                 <dl className="grid grid-cols-2 gap-x-4 gap-y-3.5 p-4 rounded-lg bg-surface"><ContactFields req={req} /></dl>
                 {req.status === 'pending' ? (
                   <div className="flex gap-2">
