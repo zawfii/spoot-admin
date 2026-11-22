@@ -15,7 +15,7 @@ export interface AdminPlace {
   lat: number | null;
   lng: number | null;
   venue_type: string | null;
-  google_place_id: string | null;
+  maps_place_id: string | null;
   status: string | null;
   created_at: string | null;
 }
