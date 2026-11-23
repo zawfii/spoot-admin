@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import RequestButtons from './RequestButtons';
 
-const PACKAGES: Record<string, string> = { '3d': '3 dni · 29 zł', '7d': '7 dni · 59 zł', '14d': '14 dni · 99 zł' };
+const PACKAGES: Record<string, string> = { '3d': '3 dni', '7d': '7 dni', '14d': '14 dni' };
 
 function formatDate(iso: string | null) {
   if (!iso) return '—';

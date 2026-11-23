@@ -1,13 +1,12 @@
 import { createClient } from '@/lib/supabase/server';
 import StatusButtons from './StatusButtons';
 
-// Ceny netto jak w spotto-web/lib/website-packages.ts (tam jest źródło prawdy).
+// Ceny netto jak w spotto-web/lib/website-packages.ts (tam jest źródło prawdy). Stworzenie strony: 0 zł.
 const PACKAGES: Record<string, { label: string; monthly: { yearly: number; monthly: number } | null }> = {
   wizytowka: { label: 'Wizytówka', monthly: { yearly: 59, monthly: 79 } },
   plus: { label: 'Strona Plus', monthly: { yearly: 99, monthly: 129 } },
   custom: { label: 'Na zamówienie', monthly: null },
 };
-const SETUP = { yearly: 150, monthly: 500 } as const;
 
 const STATUS: Record<string, { label: string; cls: string }> = {
   pending: { label: 'Do decyzji', cls: 'bg-amber-100 text-amber-800' },
@@ -23,7 +22,7 @@ function formatDate(iso: string) {
 function dueNow(pkg: string, billing: 'yearly' | 'monthly') {
   const m = PACKAGES[pkg]?.monthly?.[billing];
   if (m == null) return 'wycena';
-  return `${billing === 'yearly' ? SETUP.yearly + 12 * m : SETUP.monthly + m} zł`;
+  return `${billing === 'yearly' ? 12 * m : m} zł`;
 }
 
 export default async function WebsiteRequestsPage({ searchParams }: { searchParams: Promise<{ filter?: string }> }) {
