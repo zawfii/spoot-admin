@@ -57,12 +57,17 @@ function Field({ label, children, mono }: { label: string; children: React.React
   );
 }
 
+const CALL_TIMES: Record<string, string> = { rano: 'Rano (9–12)', po_poludniu: 'Po południu (12–16)', wieczorem: 'Wieczorem (16–19)' };
+
 function ContactFields({ req }: { req: OwnershipRequestRow }) {
   return (
     <>
       <Field label="Imię i nazwisko">{req.full_name ?? '—'}</Field>
-      <Field label="Telefon">{req.phone ?? '—'}</Field>
-      <Field label="NIP" mono>{req.nip}</Field>
+      <Field label="Telefon">
+        {req.phone ? <a href={`tel:${req.phone}`} className="text-primary underline underline-offset-2">{req.phone}</a> : '—'}
+      </Field>
+      <Field label="Kiedy dzwonić">{CALL_TIMES[req.call_time ?? ''] ?? 'O dowolnej porze'}</Field>
+      <Field label="NIP" mono>{req.nip ?? '—'}</Field>
       {req.message && <div className="col-span-2"><Field label="Wiadomość">{req.message}</Field></div>}
     </>
   );
@@ -160,7 +165,7 @@ export default async function OwnershipRequestsPage({
 
   const subtitle = {
     pending: counts.pending > 0
-      ? `${counts.pending} ${plural(counts.pending, 'czeka', 'czekają', 'czeka')} na decyzję. Zatwierdzenie daje dostęp do panelu lokalu.`
+      ? `${counts.pending} ${plural(counts.pending, 'czeka', 'czekają', 'czeka')} na telefon. Zadzwoń, potwierdź lokal i zatwierdź — to otwiera panel.`
       : 'Nic nie czeka na decyzję.',
     approved: 'Właściciele z dostępem do panelu lokalu — od ostatnio aktywnych.',
     rejected: 'Odrzucone prośby i powód odrzucenia.',

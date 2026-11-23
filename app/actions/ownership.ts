@@ -13,12 +13,18 @@ async function assertAdminRole(): Promise<string | null> {
   return null;
 }
 
+// Push o decyzji do zgłaszającego (funkcja claim-push). Błąd pusha nie cofa decyzji.
+async function notifyClaimant(supabase: ReturnType<typeof createClient>, requestId: string) {
+  await supabase.functions.invoke('claim-push', { body: { requestId } }).catch(() => {});
+}
+
 export async function approveOwnershipRequest(requestId: string): Promise<{ error?: string }> {
   const authError = await assertAdminRole();
   if (authError) return { error: authError };
   const supabase = createClient();
   const { error } = await supabase.rpc('approve_ownership_request', { request_id: requestId });
   if (error) return { error: error.message };
+  await notifyClaimant(supabase, requestId);
   revalidatePath('/dashboard/ownership-requests');
   return {};
 }
@@ -33,6 +39,7 @@ export async function rejectOwnershipRequest(requestId: string, adminNote: strin
     .eq('id', requestId)
     .eq('status', 'pending');
   if (error) return { error: error.message };
+  await notifyClaimant(supabase, requestId);
   revalidatePath('/dashboard/ownership-requests');
   return {};
 }
