@@ -3,13 +3,26 @@
 import { useState } from 'react';
 import { markMenuRequestDone } from '@/app/actions/owner-requests';
 
-export default function DoneButton({ id }: { id: string }) {
+type Props = {
+  id: string;
+  /** Domyślnie prośba o menu; lista pytań restauracji podaje własną akcję i tekst. */
+  action?: (id: string) => Promise<{ error?: string }>;
+  confirmText?: string;
+  label?: string;
+};
+
+export default function DoneButton({
+  id,
+  action = markMenuRequestDone,
+  confirmText = 'Oznaczyć prośbę jako zrobioną? Zrób to po dodaniu menu lokalu.',
+  label = 'Zrobione',
+}: Props) {
   const [loading, setLoading] = useState(false);
 
   async function handle() {
-    if (!confirm('Oznaczyć prośbę jako zrobioną? Zrób to po dodaniu menu lokalu.')) return;
+    if (!confirm(confirmText)) return;
     setLoading(true);
-    const result = await markMenuRequestDone(id);
+    const result = await action(id);
     setLoading(false);
     if (result.error) alert(`Błąd: ${result.error}`);
   }
@@ -20,7 +33,7 @@ export default function DoneButton({ id }: { id: string }) {
       disabled={loading}
       className="min-h-9 px-3.5 rounded-lg bg-primary text-onPrimary text-sm font-heading font-semibold hover:bg-primaryLight disabled:opacity-50"
     >
-      {loading ? '...' : 'Zrobione'}
+      {loading ? '...' : label}
     </button>
   );
 }

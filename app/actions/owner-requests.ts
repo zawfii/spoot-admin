@@ -64,6 +64,17 @@ export async function markMenuRequestDone(id: string): Promise<{ error?: string 
   return {};
 }
 
+// Pytania z banera na spootme.pl/dla-restauracji — po oddzwonieniu.
+export async function markOwnerQuestionDone(id: string): Promise<{ error?: string }> {
+  const authError = await assertAdminRole();
+  if (authError) return { error: authError };
+  const supabase = createClient();
+  const { error } = await supabase.from('owner_questions').update({ status: 'done' }).eq('id', id);
+  if (error) return { error: error.message };
+  revalidatePath('/dashboard/owner-questions');
+  return {};
+}
+
 // Strona dla lokalu: pending → approved | rejected, approved → done.
 const WEBSITE_FROM: Record<string, string> = { approved: 'pending', rejected: 'pending', done: 'approved' };
 
