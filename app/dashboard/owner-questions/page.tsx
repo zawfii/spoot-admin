@@ -31,7 +31,7 @@ export default async function OwnerQuestionsPage({ searchParams }: { searchParam
         <h1 className="font-heading text-[26px] leading-[34px] lg:text-[32px] lg:leading-10 font-bold">Pytania restauracji</h1>
         <div className="flex gap-2">{tab('pending', 'Do oddzwonienia')}{tab('all', 'Wszystkie')}</div>
       </div>
-      <p className="text-sm text-gray-500 mb-6">Ktoś zostawił numer w banerze na stronie dla restauracji. Oddzwoń w ciągu 1 dnia roboczego i oznacz jako załatwione.</p>
+      <p className="text-sm text-gray-500 mb-6">Ktoś zostawił numer w banerze na <a href="https://spootme.pl/dla-restauracji" target="_blank" rel="noopener" className="font-semibold text-primary underline underline-offset-2">stronie dla restauracji ↗</a>. Oddzwoń w ciągu 1 dnia roboczego i oznacz jako załatwione.</p>
 
       <div className="bg-surfaceLowest rounded-2xl border overflow-x-auto">
         <table className="w-full min-w-[720px] text-sm">
