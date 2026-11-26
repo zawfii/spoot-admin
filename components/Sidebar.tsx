@@ -20,6 +20,10 @@ const groups: { title?: string; links: NavLink[] }[] = [
     ],
   },
   {
+    title: 'Statystyki',
+    links: [{ href: '/dashboard/traffic', label: 'Ruch: dla restauracji', icon: 'chart' }],
+  },
+  {
     title: 'Moderacja',
     links: [
       { href: '/dashboard/ownership-requests', label: 'Właściciele', icon: 'store', pendingTable: 'ownership_requests' },
