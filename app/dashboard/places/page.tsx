@@ -109,21 +109,28 @@ export default async function PlacesPage({
                 </tr>
               </thead>
               <tbody>
-                {places.map((place: any) => (
-                  <tr key={place.id} className="relative border-t border-outlineVariant hover:bg-[#e3ddd4] transition-colors">
-                    <td className="px-4 py-3.5">
-                      {/* after:inset-0 rozciąga link na cały wiersz */}
-                      <Link href={`/dashboard/places/${place.id}`} className="font-heading font-semibold text-[15px] text-onSurface after:absolute after:inset-0">
-                        {place.name}
-                      </Link>
-                    </td>
-                    <td className="px-4 py-3.5 text-onSurfaceVariant">{place.category ?? '—'}</td>
-                    <td className="px-4 py-3.5 text-onSurfaceVariant">{place.city ?? '—'}</td>
-                    <td className="px-4 py-3.5"><PlaceStatusBadge status={place.status} /></td>
-                    <td className="px-4 py-3.5"><Coords ok={place.lat != null && place.lng != null} /></td>
-                    <td className="pr-4 text-onSurfaceVariant"><Icon name="chevron" size={18} /></td>
-                  </tr>
-                ))}
+                {places.map((place: any) => {
+                  // Cały wiersz klikalny: link w każdej komórce. Nie link rozciągnięty ::after na <tr> —
+                  // Safari nie liczy go od <tr>, więc przykrywał całą stronę razem z wyszukiwarką.
+                  const href = `/dashboard/places/${place.id}`;
+                  const cell = (children: React.ReactNode, cls = 'px-4') => (
+                    <td><Link href={href} tabIndex={-1} className={`block py-3.5 ${cls}`}>{children}</Link></td>
+                  );
+                  return (
+                    <tr key={place.id} className="border-t border-outlineVariant hover:bg-[#e3ddd4] transition-colors">
+                      <td>
+                        <Link href={href} className="block px-4 py-3.5 font-heading font-semibold text-[15px] text-onSurface">
+                          {place.name}
+                        </Link>
+                      </td>
+                      {cell(place.category ?? '—', 'px-4 text-onSurfaceVariant')}
+                      {cell(place.city ?? '—', 'px-4 text-onSurfaceVariant')}
+                      {cell(<PlaceStatusBadge status={place.status} />)}
+                      {cell(<Coords ok={place.lat != null && place.lng != null} />)}
+                      {cell(<Icon name="chevron" size={18} />, 'pr-4 text-onSurfaceVariant')}
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
